@@ -1,4 +1,4 @@
-// チェック用のcheckMatrix.cを追加
+//軸を追加
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,38 +15,45 @@ PFNGLMULTTRANSPOSEMATRIXDPROC glMultTransposeMatrixd;
 #endif
 
 #include "checkMatrix.h"
+#include "showGuide.h"
 
+#define TEXWIDTH 512
+#define TEXHEIGHT 512
 void init(void)
 {
-  glClearColor(0.0, 0.0, 1.0, 1.0);
+  printf("init関数実行\n");
+  glClearColor(0.0, 0.0, 0.0, 1.0);
   glShadeModel(GL_FLAT);
 }
 
 void display(void)
 {
-
+  GLdouble camera[3] = {0.0, 5.0, -5.0};
+  GLdouble look[3] = {0.0, 0.0, 0.0};
+  GLdouble up[3] = {0.0, 1.0, 0.0};
   printf("display関数実行\n");
 
   glClear(GL_COLOR_BUFFER_BIT);
+  glColor3f(1.0, 1.0, -2.0);
 
-  glColor3f(1.0, 1.0, 1.0);
+  // モデルビュー
+  glTranslated(1.0, 0.0, 0.0);
+  gluLookAt(camera[0], camera[1], camera[2], look[0], look[1], look[2], up[0], up[1], up[2]);
 
-  checkAllMatrix();
-  checkMode();
-  // gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-  glTranslated(1.0, 1.0, 1.0);
-
-  glutWireCube(1.0);
+  // 描画
+  guidePlane();
+  guideAxis();
+  glutWireCube(2);
   glFlush();
 }
 void resize(int w, int h)
 {
   printf("resize関数実行\n");
+  glViewport(0, 0, w, h);
 
-  glViewport(0, 0, (GLsizei)w, (GLsizei)h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glFrustum(-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
+  gluPerspective(30.0, TEXHEIGHT / TEXHEIGHT, 1.0, 100.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -55,6 +62,7 @@ int main(int argc, char *argv[])
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
   glutCreateWindow(argv[0]);
+  glutInitWindowSize(TEXWIDTH, TEXHEIGHT);
   init();
   glutDisplayFunc(display);
   glutReshapeFunc(resize);
